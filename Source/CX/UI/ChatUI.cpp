@@ -25,8 +25,15 @@ void UChatUI::NativeDestruct()
     Super::NativeDestruct();
 }
 
-void UChatUI::OnNewChatMessage(const FString& Sender, const FString& Message)
+void UChatUI::OnNewChatMessage(const FString& InSender, const FString& InMessage)
 {
+    FString NewMessage = InSender + TEXT(": ") + InMessage;
+
+    FString OldMessage = MultiLineEditable_ChatLog->GetText().ToString();
+    OldMessage += "\n";
+    FText Message = FText::FromString(OldMessage + NewMessage);
+
+    MultiLineEditable_ChatLog->SetText(Message);
 }
 
 void UChatUI::OnChatInputTextCommitted(const FText& Text, ETextCommit::Type CommitMethod)

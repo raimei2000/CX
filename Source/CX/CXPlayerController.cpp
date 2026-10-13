@@ -9,23 +9,39 @@
 #include "Net/UnrealNetwork.h"
 #include "GameFramework/PlayerState.h"
 #include "EngineUtils.h"
+#include "Subsystem/ChatSubsystem.h"
 
 void ACXPlayerController::CTSChatMessage_Implementation(const FString& Message)
 {
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *Message);
 
+	const FString PlayerName = PlayerState->GetPlayerName();
+
+	if (UChatSubsystem* ChatSubsystem = GetWorld()->GetSubsystem<UChatSubsystem>())
+	{
+		ChatSubsystem->AddChatMessage(PlayerName, Message);
+	}
+
 	for (TActorIterator<ACXPlayerController> It(GetWorld()); It; ++It)
 	{
 		if (ACXPlayerController* PC = *It)
 		{
-			PC->STCChatMessage(PlayerState->GetPlayerName(), Message);
+			PC->STCChatMessage(PlayerName, Message);
 		}
 	}
 }
 
 void ACXPlayerController::STCChatMessage_Implementation(const FString& Sender, const FString& Message)
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s: %s"), *Sender, *Message);
+	VehicleUI->OnNewChatMessage(Sender, Message);
+}
+
+void ACXPlayerController::STCChatLog_Implementation(const TArray<FChatData>& ChatLog)
+{
+	if (UChatSubsystem* ChatSubsystem = GetWorld()->GetSubsystem<UChatSubsystem>())
+	{
+		ChatSubsystem->SetChatLog(ChatLog);
+	}
 }
 
 void ACXPlayerController::BeginPlay()
@@ -41,8 +57,18 @@ void ACXPlayerController::BeginPlay()
 	VehicleUI = CreateWidget<UCXUI>(this, VehicleUIClass);
 
 	check(VehicleUI);
-
 	VehicleUI->AddToViewport();
+
+	if (UChatSubsystem* ChatSubsystem = GetWorld()->GetSubsystem<UChatSubsystem>())
+	{
+		const TArray<FChatData>& ChatLog = ChatSubsystem->GetChatLog();
+		for (const FChatData& ChatData : ChatLog)
+		{
+			VehicleUI->OnNewChatMessage(ChatData.Sender, ChatData.Message);
+		}
+
+		ChatSubsystem->ClearChatLog();
+	}
 }
 
 void ACXPlayerController::SetupInputComponent()

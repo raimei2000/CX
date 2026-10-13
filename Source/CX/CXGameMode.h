@@ -17,6 +17,8 @@ public:
 protected:
 	virtual AActor* ChoosePlayerStart_Implementation(AController* Player) override;
 
+	virtual void PostLogin(APlayerController* NewPlayer) override;
+
 private:
 	bool IsPlayerStartAvailable(const APlayerStart* PlayerStart) const;
 

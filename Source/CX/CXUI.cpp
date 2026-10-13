@@ -3,6 +3,13 @@
 
 #include "CXUI.h"
 
+#include "UI/ChatUI.h"
+
+void UCXUI::OnNewChatMessage(const FString& InSender, const FString& InMessage)
+{
+	UI_Chat->OnNewChatMessage(InSender, InMessage);
+}
+
 void UCXUI::UpdateSpeed(float NewSpeed)
 {
 	// format the speed to KPH or MPH

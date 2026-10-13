@@ -25,7 +25,7 @@ public:
 	virtual void NativeDestruct() override;
 
 public:
-	void OnNewChatMessage(const FString& Sender, const FString& Message);
+	void OnNewChatMessage(const FString& InSender, const FString& InMessage);
 
 protected:
 	UFUNCTION()

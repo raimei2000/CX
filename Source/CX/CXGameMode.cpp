@@ -5,6 +5,7 @@
 #include "EngineUtils.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerStart.h"
+#include "Subsystem/ChatSubsystem.h"
 
 ACXGameMode::ACXGameMode()
 {
@@ -29,6 +30,27 @@ AActor* ACXGameMode::ChoosePlayerStart_Implementation(AController* Player)
 
 	const int32 RandomIndex = FMath::RandHelper(AvailablePlayerStarts.Num());
 	return Cast<AActor>(AvailablePlayerStarts[RandomIndex]);
+}
+
+void ACXGameMode::PostLogin(APlayerController* NewPlayer)
+{
+	Super::PostLogin(NewPlayer);
+	if (IsValid(NewPlayer) == false)
+	{
+		return;
+	}
+
+	if (ACXPlayerController* CXPC = Cast<ACXPlayerController>(NewPlayer))
+	{
+		if (UChatSubsystem* ChatSubsystem = GetWorld()->GetSubsystem<UChatSubsystem>())
+		{
+			const TArray<FChatData>& ChatLog = ChatSubsystem->GetChatLog();
+			if (!ChatLog.IsEmpty())
+			{
+				CXPC->STCChatLog(ChatLog);
+			}
+		}
+	}
 }
 
 bool ACXGameMode::IsPlayerStartAvailable(const APlayerStart* PlayerStart) const
