@@ -6,10 +6,12 @@
 #include "Engine/World.h"
 #include "GameFramework/PlayerStart.h"
 #include "Subsystem/ChatSubsystem.h"
+#include "PlayerState/CXPlayerState.h"
 
 ACXGameMode::ACXGameMode()
 {
 	PlayerControllerClass = ACXPlayerController::StaticClass();
+	PlayerStateClass = ACXPlayerState::StaticClass();
 }
 
 AActor* ACXGameMode::ChoosePlayerStart_Implementation(AController* Player)
@@ -34,7 +36,6 @@ AActor* ACXGameMode::ChoosePlayerStart_Implementation(AController* Player)
 
 void ACXGameMode::PostLogin(APlayerController* NewPlayer)
 {
-	Super::PostLogin(NewPlayer);
 	if (IsValid(NewPlayer) == false)
 	{
 		return;
@@ -51,6 +52,8 @@ void ACXGameMode::PostLogin(APlayerController* NewPlayer)
 			}
 		}
 	}
+
+	Super::PostLogin(NewPlayer);
 }
 
 bool ACXGameMode::IsPlayerStartAvailable(const APlayerStart* PlayerStart) const

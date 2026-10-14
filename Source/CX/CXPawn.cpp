@@ -10,6 +10,8 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "ChaosWheeledVehicleMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "PlayerState/CXPlayerState.h"
 
 #define LOCTEXT_NAMESPACE "VehiclePawn"
 
@@ -85,6 +87,9 @@ void ACXPawn::SetupPlayerInputComponent(class UInputComponent* PlayerInputCompon
 
 		// reset the vehicle 
 		EnhancedInputComponent->BindAction(ResetVehicleAction, ETriggerEvent::Triggered, this, &ACXPawn::ResetVehicle);
+
+		// attack
+		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &ACXPawn::InputAttack);
 	}
 	else
 	{
@@ -105,6 +110,41 @@ void ACXPawn::Tick(float Delta)
 	CameraYaw = FMath::FInterpTo(CameraYaw, 0.0f, Delta, 1.0f);
 
 	BackSpringArm->SetRelativeRotation(FRotator(0.0f, CameraYaw, 0.0f));
+}
+
+float ACXPawn::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	if (HasAuthority() == false) { return 0.f; }
+	const float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	if (ActualDamage <= 0.f)
+	{
+		return ActualDamage;
+	}
+
+	if (DamageCauser == this)
+	{
+		return 0.f;
+	}
+
+	ACXPawn* Attacker = Cast<ACXPawn>(DamageCauser);
+
+	if (IsValid(Attacker) == false) { return 0.f; }
+
+	ACXPlayerState* VictimPS = GetPlayerState<ACXPlayerState>();
+	ACXPlayerState* AttackerPS = Attacker->GetPlayerState<ACXPlayerState>();
+
+	const int32 TransferCoinAmount = (int32)ActualDamage;
+	if (VictimPS->TryRemoveCoins(TransferCoinAmount))
+	{
+		UE_LOG(LogTemplateVehicle, Error, TEXT("%s transfferd %d coins to %s"), *GetNameSafe(VictimPS), TransferCoinAmount, *GetNameSafe(AttackerPS));
+		AttackerPS->AddCoins(ActualDamage);
+	}
+	else
+	{
+		UE_LOG(LogTemplateVehicle, Error, TEXT("%s don't have enough coins"), *GetNameSafe(VictimPS));
+	}
+	
+	return ActualDamage;
 }
 
 void ACXPawn::Steering(const FInputActionValue& Value)
@@ -203,5 +243,36 @@ void ACXPawn::ResetVehicle(const FInputActionValue& Value)
 
 	UE_LOG(LogTemplateVehicle, Error, TEXT("Reset Vehicle"));
 }
+
+void ACXPawn::InputAttack(const FInputActionValue& Value)
+{
+	CTSAttack();
+}
+
+void ACXPawn::CTSAttack_Implementation()
+{
+	const FVector Start = GetActorLocation();
+	const FVector End = Start + GetActorForwardVector() * 1000.f;
+	
+	UWorld* World = GetWorld();
+
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
+
+	FHitResult HitResult;
+	bool bHit = World->LineTraceSingleByChannel(HitResult, Start, End, ECollisionChannel::ECC_Visibility, Params);
+
+	if (bHit)
+	{
+		AActor* Actor = HitResult.GetActor();
+		UE_LOG(LogTemplateVehicle, Error, TEXT("Attack trace hit: %s"), *GetNameSafe(Actor));
+
+		if (ACXPawn* CXPawn = Cast<ACXPawn>(Actor))
+		{
+			UGameplayStatics::ApplyDamage(CXPawn, 1.f, GetController(), this, nullptr);
+		}
+	}
+}
+
 
 #undef LOCTEXT_NAMESPACE
