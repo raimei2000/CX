@@ -147,6 +147,16 @@ float ACXPawn::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, A
 	return ActualDamage;
 }
 
+void ACXPawn::MulticastHitEffect_Implementation(const FVector& TraceStart, const FVector& TraceEnd, bool bHitVehicle, const FVector& ImpactPoint, const FVector& ImpactNormal)
+{
+	UWorld* World = GetWorld();
+	DrawDebugLine(World, TraceStart, TraceEnd, FColor::Red, false, 1.0f, 0, 5.0f);
+
+	if (!bHitVehicle) { return; }
+
+	UGameplayStatics::SpawnEmitterAtLocation(World, HitParticle, ImpactPoint, ImpactNormal.Rotation());
+}
+
 void ACXPawn::Steering(const FInputActionValue& Value)
 {
 	// get the input magnitude for steering
@@ -262,6 +272,8 @@ void ACXPawn::CTSAttack_Implementation()
 	FHitResult HitResult;
 	bool bHit = World->LineTraceSingleByChannel(HitResult, Start, End, ECollisionChannel::ECC_Visibility, Params);
 
+    bool bHitVehicle = false;
+
 	if (bHit)
 	{
 		AActor* Actor = HitResult.GetActor();
@@ -269,9 +281,12 @@ void ACXPawn::CTSAttack_Implementation()
 
 		if (ACXPawn* CXPawn = Cast<ACXPawn>(Actor))
 		{
-			UGameplayStatics::ApplyDamage(CXPawn, 1.f, GetController(), this, nullptr);
+            bHitVehicle = true;
+			UGameplayStatics::ApplyDamage(CXPawn, 5.f, GetController(), this, nullptr);
 		}
 	}
+
+	MulticastHitEffect(Start, End, bHitVehicle, HitResult.ImpactPoint, HitResult.ImpactNormal);
 }
 
 
