@@ -7,7 +7,7 @@
 
 static int32 GMyTestCoin = 0;
 
-static TAutoConsoleVariable<int32> CVarAddCoinServer(
+static FAutoConsoleVariableRef CVarAddCoinServer(
     TEXT("cheat.addcoin.server"),
     GMyTestCoin,
     TEXT("Increase Coin"),
@@ -22,7 +22,7 @@ static TAutoConsoleVariable<int32> CVarAddCoinServer(
     ECVF_Cheat
 );
 
-static TAutoConsoleVariable<int32> CVarAddCoinClient(
+static FAutoConsoleVariableRef CVarAddCoinClient(
     TEXT("cheat.addcoin.client"),
     GMyTestCoin,
     TEXT("Increase Coin"),
@@ -31,7 +31,7 @@ static TAutoConsoleVariable<int32> CVarAddCoinClient(
             UE_LOG(LogTemp, Warning, TEXT("Console Var changed! current: %d"), CVar->GetInt());
             UE_LOG(LogTemp, Warning, TEXT("Console Var changed! GMyTestCoin: %d"), GMyTestCoin);
 
-            GWorld->GetFirstPlayerController()->GetPlayerState<ACXPlayerState>()->AddCoins(GMyTestCoin);
+            GWorld->GetFirstPlayerController()->GetPlayerState<ACXPlayerState>()->Coins += GMyTestCoin;
             GMyTestCoin = 0;
         }),
     ECVF_Cheat
@@ -47,7 +47,7 @@ void ACXPlayerState::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>&
 
 void ACXPlayerState::CTSAddCoin_Implementation(const int32& Amount)
 {
-    Coins += Amount;
+    AddCoins(Amount);
 }
 
 void ACXPlayerState::AddCoins(int32 Amount)
