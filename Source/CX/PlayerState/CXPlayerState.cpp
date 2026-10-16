@@ -37,6 +37,11 @@ static FAutoConsoleVariableRef CVarAddCoinClient(
     ECVF_Cheat
 );
 
+ACXPlayerState::ACXPlayerState()
+{
+    SetNetUpdateFrequency(10);
+}
+
 void ACXPlayerState::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -80,9 +85,31 @@ void ACXPlayerState::ReduceBonusMaxSpeed(float Amount)
 
     BonusMaxSpeed -= Amount;
     BonusMaxSpeed = FMath::Max(-20, BonusMaxSpeed); // min cap -20
+
+    if (BonusMaxSpeed < 0.f && GetWorldTimerManager().IsTimerActive(RecoverBonusMaxSpeedTimer) == false)
+    {
+        GetWorldTimerManager().SetTimer(RecoverBonusMaxSpeedTimer, this, &ACXPlayerState::RecoverBonusMaxSpeed, 0.1f, true);
+    }
 }
 
 FString ACXPlayerState::GetPlayerStateInfo() const
 {
     return FString::Printf(TEXT("Coins: %d, BonusMaxSpeed: %.2f"), Coins, BonusMaxSpeed);
+}
+
+void ACXPlayerState::RecoverBonusMaxSpeed()
+{
+    if (BonusMaxSpeed >= 0.f)
+    {
+        GetWorldTimerManager().ClearTimer(RecoverBonusMaxSpeedTimer);
+    }
+    else
+    {
+        BonusMaxSpeed = FMath::Min(BonusMaxSpeed + 0.12f, 0.f);
+
+        if (BonusMaxSpeed >= 0.f)
+        {
+            GetWorldTimerManager().ClearTimer(RecoverBonusMaxSpeedTimer);
+        }
+    }
 }
