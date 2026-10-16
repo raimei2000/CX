@@ -83,6 +83,7 @@ void ACXPlayerController::BeginPlay()
 	if (ACXGameState* CXGS = Cast<ACXGameState>(UGameplayStatics::GetGameState(this)))
 	{
 		CXGS->OnTimerUpdated.AddUniqueDynamic(this, &ACXPlayerController::HandleTimerUpdated);
+        CXGS->OnGameStateUpdate.AddUniqueDynamic(this, &ACXPlayerController::HandleTimerUpdated);
     }
 }
 

@@ -26,7 +26,12 @@ void ACXGameState::SetRemainingTime(int32 NewRemainingTime)
     RemainingTime = FMath::Max(0.f, NewRemainingTime);
 }
 
-void ACXGameState::OnRep_UpdateTimerUI()
+void ACXGameState::OnRep_UpdateGameState()
+{
+    OnGameStateUpdate.Broadcast();
+}
+
+void ACXGameState::OnRep_UpdateTimer()
 {
     OnTimerUpdated.Broadcast();
 }

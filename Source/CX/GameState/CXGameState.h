@@ -6,7 +6,7 @@
 #include "GameFramework/GameStateBase.h"
 #include "CXGameState.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTimerUpdatedSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGameplayStateSignature);
 
 class ACXPlayerState;
 
@@ -40,16 +40,21 @@ public:
     UPROPERTY(Replicated)
 	TArray<TObjectPtr<ACXPlayerState>> Winners;
 
-    FOnTimerUpdatedSignature OnTimerUpdated;
+    FOnGameplayStateSignature OnGameStateUpdate;
+
+    FOnGameplayStateSignature OnTimerUpdated;
 
 protected:
-	UPROPERTY(ReplicatedUsing = OnRep_UpdateTimerUI)
+	UPROPERTY(ReplicatedUsing = OnRep_UpdateGameState)
     EGameState CurrentGameState = EGameState::Waiting;
 
-	UPROPERTY(ReplicatedUsing = OnRep_UpdateTimerUI)
+	UPROPERTY(ReplicatedUsing = OnRep_UpdateTimer)
     int32 RemainingTime = 0;
 
 private:
     UFUNCTION()
-    void OnRep_UpdateTimerUI();
+    void OnRep_UpdateGameState();
+
+    UFUNCTION()
+    void OnRep_UpdateTimer();
 };
