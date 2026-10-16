@@ -28,7 +28,7 @@ void ACXGameState::SetRemainingTime(int32 NewRemainingTime)
 
 void ACXGameState::OnRep_UpdateGameState()
 {
-    OnGameStateUpdate.Broadcast();
+    OnGameStateUpdate.Broadcast(CurrentGameState);
 }
 
 void ACXGameState::OnRep_UpdateTimer()

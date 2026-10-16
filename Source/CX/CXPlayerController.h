@@ -10,6 +10,7 @@
 class UInputMappingContext;
 class ACXPawn;
 class UCXUI;
+enum class EGameState : uint8;
 
 /**
  *  Vehicle Player Controller class
@@ -35,6 +36,9 @@ protected:
 	void STCChatMessage(const FString& Sender, const FString& Message);
 
 protected:
+	UFUNCTION()
+	void HandleStateUpdated(EGameState CurrentGameState);
+
 	UFUNCTION()
 	void HandleTimerUpdated();
 

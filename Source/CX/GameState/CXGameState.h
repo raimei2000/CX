@@ -6,7 +6,6 @@
 #include "GameFramework/GameStateBase.h"
 #include "CXGameState.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGameplayStateSignature);
 
 class ACXPlayerState;
 
@@ -17,6 +16,9 @@ enum class EGameState : uint8
     Playing,
 	Finished
 };
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGameplayTimerUpdateSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGameStateUpdatedSignature, EGameState, NewGameState);
 
 /**
  * 
@@ -40,9 +42,9 @@ public:
     UPROPERTY(Replicated)
 	TArray<TObjectPtr<ACXPlayerState>> Winners;
 
-    FOnGameplayStateSignature OnGameStateUpdate;
+    FOnGameStateUpdatedSignature OnGameStateUpdate;
 
-    FOnGameplayStateSignature OnTimerUpdated;
+    FOnGameplayTimerUpdateSignature OnTimerUpdated;
 
 protected:
 	UPROPERTY(ReplicatedUsing = OnRep_UpdateGameState)

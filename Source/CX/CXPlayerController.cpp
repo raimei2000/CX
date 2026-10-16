@@ -41,6 +41,11 @@ void ACXPlayerController::STCChatMessage_Implementation(const FString& Sender, c
 	VehicleUI->OnNewChatMessage(Sender, Message);
 }
 
+void ACXPlayerController::HandleStateUpdated(EGameState CurrentGameState)
+{
+	VehicleUI->UpdateTime();
+}
+
 void ACXPlayerController::HandleTimerUpdated()
 {
 	VehicleUI->UpdateTime();
@@ -83,7 +88,7 @@ void ACXPlayerController::BeginPlay()
 	if (ACXGameState* CXGS = Cast<ACXGameState>(UGameplayStatics::GetGameState(this)))
 	{
 		CXGS->OnTimerUpdated.AddUniqueDynamic(this, &ACXPlayerController::HandleTimerUpdated);
-        CXGS->OnGameStateUpdate.AddUniqueDynamic(this, &ACXPlayerController::HandleTimerUpdated);
+        CXGS->OnGameStateUpdate.AddUniqueDynamic(this, &ACXPlayerController::HandleStateUpdated);
     }
 }
 
