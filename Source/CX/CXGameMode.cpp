@@ -43,7 +43,7 @@ void ACXGameMode::StartPlayingState()
 {
 	ACXGameState* CXGameState = GetGameState<ACXGameState>();
 	CXGameState->SetGameState(EGameState::Playing);
-	CXGameState->SetRemainingTime(30);
+	CXGameState->SetRemainingTime(60);
     GetWorldTimerManager().SetTimer(GameTimerHandle, this, &ACXGameMode::HandlePlayingTimerTick, 1.f, true);
 }
 

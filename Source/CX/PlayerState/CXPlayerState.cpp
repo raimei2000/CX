@@ -74,6 +74,14 @@ void ACXPlayerState::AddBonusMaxSpeed(float Amount)
     BonusMaxSpeed += Amount;
 }
 
+void ACXPlayerState::ReduceBonusMaxSpeed(float Amount)
+{
+    if (HasAuthority() == false || Amount <= 0.f) { return; }
+
+    BonusMaxSpeed -= Amount;
+    BonusMaxSpeed = FMath::Max(-20, BonusMaxSpeed); // min cap -20
+}
+
 FString ACXPlayerState::GetPlayerStateInfo() const
 {
     return FString::Printf(TEXT("Coins: %d, BonusMaxSpeed: %.2f"), Coins, BonusMaxSpeed);

@@ -27,6 +27,7 @@ public:
 	bool TryRemoveCoins(int32 Amount);
 
 	void AddBonusMaxSpeed(float Amount);
+	void ReduceBonusMaxSpeed(float Amount);
 
 	UFUNCTION(BlueprintCallable)
 	FString GetPlayerStateInfo() const;

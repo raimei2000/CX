@@ -126,7 +126,10 @@ void ACXPawn::Tick(float Delta)
 
 float ACXPawn::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
+	// Run only on server
 	if (HasAuthority() == false) { return 0.f; }
+
+	// Basic damage logic
 	const float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 	if (ActualDamage <= 0.f)
 	{
@@ -156,6 +159,7 @@ float ACXPawn::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, A
 		UE_LOG(LogTemplateVehicle, Error, TEXT("%s don't have enough coins"), *GetNameSafe(VictimPS));
 	}
 
+	// When hit on wheels
 	if (DamageEvent.IsOfType(FPointDamageEvent::ClassID))
 	{
 		static const TSet<FName> WheelBoneNames = {
@@ -170,6 +174,12 @@ float ACXPawn::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, A
 		if (WheelBoneNames.Contains(PointDamageEvent->HitInfo.BoneName))
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Wheel Hit!!"));
+
+			ACXPlayerState* CXPS = GetPlayerState<ACXPlayerState>();
+			if (IsValid(CXPS))
+			{
+				CXPS->ReduceBonusMaxSpeed(5.f);
+			}
 		}
 	}
 	
