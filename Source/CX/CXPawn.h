@@ -115,7 +115,7 @@ public:
 
 #pragma endregion
 
-#pragma region Functions
+#pragma region Combat
 
 public:
 

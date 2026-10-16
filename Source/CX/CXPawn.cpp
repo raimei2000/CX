@@ -13,6 +13,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "PlayerState/CXPlayerState.h"
 #include "GameState/CXGameState.h"
+#include "Engine/DamageEvents.h"
 
 #define LOCTEXT_NAMESPACE "VehiclePawn"
 
@@ -153,6 +154,23 @@ float ACXPawn::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, A
 	else
 	{
 		UE_LOG(LogTemplateVehicle, Error, TEXT("%s don't have enough coins"), *GetNameSafe(VictimPS));
+	}
+
+	if (DamageEvent.IsOfType(FPointDamageEvent::ClassID))
+	{
+		static const TSet<FName> WheelBoneNames = {
+			FName("Phys_Wheel_FL"),
+			FName("Phys_Wheel_FR"),
+			FName("Phys_Wheel_BL"),
+			FName("Phys_Wheel_BR")
+		};
+
+		const FPointDamageEvent* PointDamageEvent = static_cast<const FPointDamageEvent*>(&DamageEvent);
+
+		if (WheelBoneNames.Contains(PointDamageEvent->HitInfo.BoneName))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Wheel Hit!!"));
+		}
 	}
 	
 	return ActualDamage;
@@ -331,7 +349,7 @@ void ACXPawn::CTSAttack_Implementation()
 		if (ACXPawn* CXPawn = Cast<ACXPawn>(Actor))
 		{
             bHitVehicle = true;
-			UGameplayStatics::ApplyDamage(CXPawn, 5.f, GetController(), this, nullptr);
+            UGameplayStatics::ApplyPointDamage(CXPawn, 5.f, GetActorForwardVector(), HitResult, GetController(), this, nullptr);
 		}
 	}
 
