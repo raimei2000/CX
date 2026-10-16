@@ -24,9 +24,6 @@ protected:
 	UFUNCTION()
     void OnItemDestroyed(AActor* DestroyedActor);
 
-public:
-	virtual void Tick(float DeltaTime) override;
-
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Spawner)
     TObjectPtr<UBillboardComponent> BillboardComponent;

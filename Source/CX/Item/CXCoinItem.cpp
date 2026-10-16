@@ -14,7 +14,7 @@
 
 ACXCoinItem::ACXCoinItem()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	bReplicates = true;
 	SetNetUpdateFrequency(1.f);
@@ -24,7 +24,6 @@ ACXCoinItem::ACXCoinItem()
 	SetRootComponent(SceneRoot);
     OverlapSphere = CreateDefaultSubobject<USphereComponent>(TEXT("OverlapSphere"));
     OverlapSphere->SetupAttachment(SceneRoot);
-	OverlapSphere->OnComponentBeginOverlap.AddDynamic(this, &ACXCoinItem::OnOverlapSphereBeginOverlap);
     OverlapSphere->SetSphereRadius(100.f);
     OverlapSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
     OverlapSphere->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
@@ -43,7 +42,7 @@ void ACXCoinItem::BeginPlay()
 	
     if (HasAuthority())
     {
-        OverlapSphere->OnComponentBeginOverlap.AddDynamic(this, &ACXCoinItem::OnOverlapSphereBeginOverlap);
+        OverlapSphere->OnComponentBeginOverlap.AddUniqueDynamic(this, &ACXCoinItem::OnOverlapSphereBeginOverlap);
     }
 }
 
@@ -76,10 +75,3 @@ void ACXCoinItem::MulticastPickupEffects_Implementation()
         UGameplayStatics::PlaySoundAtLocation(World, PickupSound, GetActorLocation());
     }
 }
-
-void ACXCoinItem::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-

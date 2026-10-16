@@ -14,7 +14,7 @@
 
 ACXSpeedBuffItem::ACXSpeedBuffItem()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	bReplicates = true;
 	SetNetUpdateFrequency(1.f);
@@ -24,7 +24,6 @@ ACXSpeedBuffItem::ACXSpeedBuffItem()
 	SetRootComponent(SceneRoot);
     OverlapSphere = CreateDefaultSubobject<USphereComponent>(TEXT("OverlapSphere"));
     OverlapSphere->SetupAttachment(SceneRoot);
-	OverlapSphere->OnComponentBeginOverlap.AddDynamic(this, &ACXSpeedBuffItem::OnOverlapSphereBeginOverlap);
     OverlapSphere->SetSphereRadius(100.f);
     OverlapSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
     OverlapSphere->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
@@ -43,7 +42,7 @@ void ACXSpeedBuffItem::BeginPlay()
 	
     if (HasAuthority())
     {
-        OverlapSphere->OnComponentBeginOverlap.AddDynamic(this, &ACXSpeedBuffItem::OnOverlapSphereBeginOverlap);
+        OverlapSphere->OnComponentBeginOverlap.AddUniqueDynamic(this, &ACXSpeedBuffItem::OnOverlapSphereBeginOverlap);
     }
 }
 
@@ -76,10 +75,3 @@ void ACXSpeedBuffItem::MulticastPickupEffects_Implementation()
         UGameplayStatics::PlaySoundAtLocation(World, PickupSound, GetActorLocation());
     }
 }
-
-void ACXSpeedBuffItem::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-

@@ -34,7 +34,6 @@ void ACXItemSpawner::SpawnItem()
     SpawnedItem = World->SpawnActorDeferred<AActor>(ItemClass, GetActorTransform(), this, nullptr, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
 	SpawnedItem->OnDestroyed.AddDynamic(this, &ACXItemSpawner::OnItemDestroyed);
 	UGameplayStatics::FinishSpawningActor(SpawnedItem, GetActorTransform());
-
 }
 
 void ACXItemSpawner::OnItemDestroyed(AActor* DestroyedActor)
@@ -44,10 +43,3 @@ void ACXItemSpawner::OnItemDestroyed(AActor* DestroyedActor)
 	SpawnedItem = nullptr;
     GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &ACXItemSpawner::SpawnItem, SpawnInterval, false);
 }
-
-void ACXItemSpawner::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-

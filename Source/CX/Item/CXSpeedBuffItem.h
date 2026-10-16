@@ -31,9 +31,6 @@ protected:
     UFUNCTION(NetMulticast, Reliable)
 	void MulticastPickupEffects();
 
-public:
-	virtual void Tick(float DeltaTime) override;
-
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Coin")
 	TObjectPtr<USceneComponent> SceneRoot;

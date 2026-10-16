@@ -137,7 +137,7 @@ float ACXPawn::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, A
 	if (VictimPS->TryRemoveCoins(TransferCoinAmount))
 	{
 		UE_LOG(LogTemplateVehicle, Error, TEXT("%s transfferd %d coins to %s"), *GetNameSafe(VictimPS), TransferCoinAmount, *GetNameSafe(AttackerPS));
-		AttackerPS->AddCoins(ActualDamage);
+		AttackerPS->AddCoins(TransferCoinAmount);
 	}
 	else
 	{
@@ -150,7 +150,7 @@ float ACXPawn::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, A
 void ACXPawn::MulticastHitEffect_Implementation(const FVector& TraceStart, const FVector& TraceEnd, bool bHitVehicle, const FVector& ImpactPoint, const FVector& ImpactNormal)
 {
 	UWorld* World = GetWorld();
-	DrawDebugLine(World, TraceStart, TraceEnd, FColor::Red, false, 1.0f, 0, 5.0f);
+	DrawDebugLine(World, TraceStart, TraceEnd, FColor::Red, false, 0.4f, 0, 5.0f);
 
 	if (!bHitVehicle) { return; }
 
