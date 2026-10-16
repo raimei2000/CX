@@ -8,6 +8,9 @@
 #include "Components/SceneComponent.h"
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Particles/ParticleSystem.h"
+#include "Sound/Soundbase.h"
+#include "Kismet/GameplayStatics.h"
 
 ACXMineItem::ACXMineItem()
 {
@@ -38,8 +41,25 @@ void ACXMineItem::OnOverlapSphereBeginOverlap(UPrimitiveComponent* OverlappedCom
 	if (ACXPawn* Vehicle = Cast<ACXPawn>(OtherActor))
 	{
 		Vehicle->STCHitByMine();
+		MulticastPlayExplosionCosmetic();
 
 		Destroy();
+	}
+}
+
+void ACXMineItem::MulticastPlayExplosionCosmetic_Implementation()
+{
+	if (HasAuthority() == true) { return; }
+
+	UWorld* World = GetWorld();
+	if (IsValid(ExplosionEffect))
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(World, ExplosionEffect, GetActorTransform());
+	}
+
+	if (IsValid(ExplosionSound))
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, ExplosionSound, GetActorLocation());
 	}
 }
 

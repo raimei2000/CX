@@ -9,6 +9,8 @@
 class USceneComponent;
 class USphereComponent;
 class UStaticMeshComponent;
+class UParticleSystem;
+class USoundBase;
 
 UCLASS()
 class CX_API ACXMineItem : public AActor
@@ -25,6 +27,12 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Components)
 	TObjectPtr<UStaticMeshComponent> StaticMesh;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Cosmetic)
+	TObjectPtr<UParticleSystem> ExplosionEffect;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Cosmetic)
+	TObjectPtr<USoundBase> ExplosionSound;
+
 public:
 	ACXMineItem();
 
@@ -32,6 +40,9 @@ public:
     void OnOverlapSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent,
 		AActor* OtherActor, UPrimitiveComponent* OtherComp,
 		int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastPlayExplosionCosmetic();
 
 protected:
 	virtual void BeginPlay() override;

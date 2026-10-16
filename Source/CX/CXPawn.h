@@ -13,6 +13,7 @@ class UChaosWheeledVehicleMovementComponent;
 struct FInputActionValue;
 class UParticleSystem;
 enum class EGameState : uint8;
+class ACXMineItem;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateVehicle, Log, All);
 
@@ -86,6 +87,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	UInputAction* AttackAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	UInputAction* SpawnMineAction;
+
 	/** Keeps track of which camera is active */
 	bool bFrontCameraActive = false;
 
@@ -137,6 +141,9 @@ private:
 
 	FTimerHandle ThrottleRecoveryTimerHandle;
 
+	UPROPERTY(EditDefaultsOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<ACXMineItem> MineClass;
+
 #pragma endregion
 
 #pragma region Cosmetic
@@ -180,6 +187,10 @@ protected:
 
 	/** Handles reset vehicle input */
 	void ResetVehicle(const FInputActionValue& Value);
+
+	/** Spawn MineItem behind vehicle */
+	UFUNCTION(Server, Reliable)
+	void CTSSpawnMine(const FInputActionValue& Value);
 
 	/** Called when the brake lights are turned on or off */
 	UFUNCTION(BlueprintImplementableEvent, Category="Vehicle")

@@ -14,6 +14,7 @@
 #include "PlayerState/CXPlayerState.h"
 #include "GameState/CXGameState.h"
 #include "Engine/DamageEvents.h"
+#include "Item/CXMineItem.h"
 
 #define LOCTEXT_NAMESPACE "VehiclePawn"
 
@@ -102,6 +103,9 @@ void ACXPawn::SetupPlayerInputComponent(class UInputComponent* PlayerInputCompon
 
 		// attack
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &ACXPawn::InputAttack);
+
+		// spawn mine
+		EnhancedInputComponent->BindAction(SpawnMineAction, ETriggerEvent::Started, this, &ACXPawn::CTSSpawnMine);
 	}
 	else
 	{
@@ -340,6 +344,19 @@ void ACXPawn::ResetVehicle(const FInputActionValue& Value)
 	GetMesh()->SetPhysicsLinearVelocity(FVector::ZeroVector);
 
 	UE_LOG(LogTemplateVehicle, Error, TEXT("Reset Vehicle"));
+}
+
+void ACXPawn::CTSSpawnMine_Implementation(const FInputActionValue& Value)
+{
+	if (IsValid(MineClass) == false) { return; }
+	
+	FVector SpawnLocation = GetActorLocation();
+	FVector BackwardVector = (-1) * GetActorForwardVector();
+	SpawnLocation += BackwardVector * 600.f;
+
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = this;
+	GetWorld()->SpawnActor<ACXMineItem>(MineClass, SpawnLocation, FRotator::ZeroRotator, SpawnParams);
 }
 
 void ACXPawn::InputAttack(const FInputActionValue& Value)
