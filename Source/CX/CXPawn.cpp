@@ -105,7 +105,7 @@ void ACXPawn::SetupPlayerInputComponent(class UInputComponent* PlayerInputCompon
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &ACXPawn::InputAttack);
 
 		// spawn mine
-		EnhancedInputComponent->BindAction(SpawnMineAction, ETriggerEvent::Started, this, &ACXPawn::CTSSpawnMine);
+		EnhancedInputComponent->BindAction(SpawnMineAction, ETriggerEvent::Started, this, &ACXPawn::TrySpawnMine);
 	}
 	else
 	{
@@ -346,7 +346,15 @@ void ACXPawn::ResetVehicle(const FInputActionValue& Value)
 	UE_LOG(LogTemplateVehicle, Error, TEXT("Reset Vehicle"));
 }
 
-void ACXPawn::CTSSpawnMine_Implementation(const FInputActionValue& Value)
+void ACXPawn::TrySpawnMine(const FInputActionValue& Value)
+{
+	if (bCanControlVehicle)
+	{
+		CTSSpawnMine();
+	}
+}
+
+void ACXPawn::CTSSpawnMine_Implementation()
 {
 	if (IsValid(MineClass) == false) { return; }
 	

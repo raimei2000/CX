@@ -137,6 +137,10 @@ public:
 	UFUNCTION(Server, Reliable)
 	void CTSAttack();
 
+	/** Spawn MineItem behind vehicle */
+	UFUNCTION(Server, Reliable)
+	void CTSSpawnMine();
+
 private:
 
 	FTimerHandle ThrottleRecoveryTimerHandle;
@@ -188,9 +192,8 @@ protected:
 	/** Handles reset vehicle input */
 	void ResetVehicle(const FInputActionValue& Value);
 
-	/** Spawn MineItem behind vehicle */
-	UFUNCTION(Server, Reliable)
-	void CTSSpawnMine(const FInputActionValue& Value);
+	/** Try to spawn mine item */
+	void TrySpawnMine(const FInputActionValue& Value);
 
 	/** Called when the brake lights are turned on or off */
 	UFUNCTION(BlueprintImplementableEvent, Category="Vehicle")
