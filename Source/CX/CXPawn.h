@@ -89,8 +89,11 @@ protected:
 	/** Keeps track of which camera is active */
 	bool bFrontCameraActive = false;
 
-	/** true when only GameState is Playing*/
+	/** true when only GameState is Playing */
 	bool bCanControlVehicle = false;
+
+	/** true when overlapped with mine */
+	bool bThrottleBroken = false;
 
 #pragma endregion
 
@@ -121,8 +124,18 @@ public:
 
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
+	UFUNCTION(Client, Reliable)
+	void STCHitByMine();
+
+	UFUNCTION()
+	void RecoverThrottle();
+
 	UFUNCTION(Server, Reliable)
 	void CTSAttack();
+
+private:
+
+	FTimerHandle ThrottleRecoveryTimerHandle;
 
 #pragma endregion
 

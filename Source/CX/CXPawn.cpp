@@ -186,6 +186,19 @@ float ACXPawn::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, A
 	return ActualDamage;
 }
 
+void ACXPawn::STCHitByMine_Implementation()
+{
+	UE_LOG(LogTemplateVehicle, Warning, TEXT("Mine alert"));
+
+	bThrottleBroken = true;
+	GetWorld()->GetTimerManager().SetTimer(ThrottleRecoveryTimerHandle, this, &ACXPawn::RecoverThrottle, 3.f, false);
+}
+
+void ACXPawn::RecoverThrottle()
+{
+	bThrottleBroken = false;
+}
+
 void ACXPawn::MulticastHitEffect_Implementation(const FVector& TraceStart, const FVector& TraceEnd, bool bHitVehicle, const FVector& ImpactPoint, const FVector& ImpactNormal)
 {
 	UWorld* World = GetWorld();
@@ -229,10 +242,10 @@ void ACXPawn::Steering(const FInputActionValue& Value)
 
 void ACXPawn::Throttle(const FInputActionValue& Value)
 {
-	if (bCanControlVehicle == false) { return; }
-
 	// get the input magnitude for the throttle
 	float ThrottleValue = Value.Get<float>();
+
+	if (bCanControlVehicle == false || bThrottleBroken == true) { ThrottleValue = 0.f; }
 
 	// add the input
 	ChaosVehicleMovement->SetThrottleInput(ThrottleValue);
