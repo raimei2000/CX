@@ -30,14 +30,22 @@ protected:
 
 #pragma endregion
 
-#pragma region Timer
+#pragma region GamePlay
 
 public:
 	void UpdateTime();
 
+	void ShowResult();
+
 protected:
     UPROPERTY(meta = (BindWidget))
     TObjectPtr<UTextBlock> UI_Timer;
+
+	UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UTextBlock> UI_WinText;
+
+	UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UTextBlock> UI_LoseText;
 
 #pragma endregion
 

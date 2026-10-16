@@ -5,6 +5,7 @@
 
 #include "UI/ChatUI.h"
 #include "GameState/CXGameState.h"
+#include "PlayerState/CXPlayerState.h"
 
 #include "Kismet/GameplayStatics.h"
 #include "Components/TextBlock.h"
@@ -50,9 +51,33 @@ void UCXUI::UpdateTime()
 		case EGameState::Finished:
 		{
 			UI_Timer->SetText(FText::FromString(FString::Printf(TEXT("Game Finished!"))));
+			ShowResult();
 
 			break;
 		}
+		}
+	}
+}
+
+void UCXUI::ShowResult()
+{
+	if (ACXGameState* CXGS = Cast<ACXGameState>(UGameplayStatics::GetGameState(this)))
+	{
+		if (APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0))
+		{
+			if (ACXPlayerState* CXPS = Cast<ACXPlayerState>(PC->PlayerState))
+			{
+				if (CXGS->Winners.Contains(CXPS))
+				{
+					UI_WinText->SetVisibility(ESlateVisibility::Visible);
+					UI_LoseText->SetVisibility(ESlateVisibility::Hidden);
+				}
+				else
+				{
+					UI_WinText->SetVisibility(ESlateVisibility::Hidden);
+					UI_LoseText->SetVisibility(ESlateVisibility::Visible);
+				}
+            }
 		}
 	}
 }
