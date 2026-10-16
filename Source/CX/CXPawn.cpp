@@ -12,6 +12,7 @@
 #include "ChaosWheeledVehicleMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "PlayerState/CXPlayerState.h"
+#include "GameState/CXGameState.h"
 
 #define LOCTEXT_NAMESPACE "VehiclePawn"
 
@@ -54,6 +55,16 @@ ACXPawn::ACXPawn()
 	// get the Chaos Wheeled movement component
 	ChaosVehicleMovement = CastChecked<UChaosWheeledVehicleMovementComponent>(GetVehicleMovement());
 
+}
+
+void ACXPawn::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (ACXGameState* CXGS = GetWorld()->GetGameState<ACXGameState>())
+	{
+        CXGS->OnGameStateUpdate.AddDynamic(this, &ACXPawn::SetCanControlVehicle);
+	}
 }
 
 void ACXPawn::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -157,8 +168,30 @@ void ACXPawn::MulticastHitEffect_Implementation(const FVector& TraceStart, const
 	UGameplayStatics::SpawnEmitterAtLocation(World, HitParticle, ImpactPoint, ImpactNormal.Rotation());
 }
 
+void ACXPawn::SetCanControlVehicle(EGameState CurrentGameState)
+{
+	if (CurrentGameState == EGameState::Playing)
+	{
+		// Deactivate the handbrake
+		ChaosVehicleMovement->SetHandbrakeInput(false);
+		BrakeLights(false);
+
+        bCanControlVehicle = true;
+	}
+	else
+	{
+		// Activate the handbrake
+		ChaosVehicleMovement->SetHandbrakeInput(true);
+		BrakeLights(true);
+
+        bCanControlVehicle = false;
+	}
+}
+
 void ACXPawn::Steering(const FInputActionValue& Value)
 {
+    if (bCanControlVehicle == false) { return; }
+
 	// get the input magnitude for steering
 	float SteeringValue = Value.Get<float>();
 
@@ -168,6 +201,8 @@ void ACXPawn::Steering(const FInputActionValue& Value)
 
 void ACXPawn::Throttle(const FInputActionValue& Value)
 {
+	if (bCanControlVehicle == false) { return; }
+
 	// get the input magnitude for the throttle
 	float ThrottleValue = Value.Get<float>();
 
@@ -177,6 +212,8 @@ void ACXPawn::Throttle(const FInputActionValue& Value)
 
 void ACXPawn::Brake(const FInputActionValue& Value)
 {
+	if (bCanControlVehicle == false) { return; }
+
 	// get the input magnitude for the brakes
 	float BreakValue = Value.Get<float>();
 
@@ -186,12 +223,16 @@ void ACXPawn::Brake(const FInputActionValue& Value)
 
 void ACXPawn::StartBrake(const FInputActionValue& Value)
 {
+	if (bCanControlVehicle == false) { return; }
+
 	// call the Blueprint hook for the break lights
 	BrakeLights(true);
 }
 
 void ACXPawn::StopBrake(const FInputActionValue& Value)
 {
+	if (bCanControlVehicle == false) { return; }
+
 	// call the Blueprint hook for the break lights
 	BrakeLights(false);
 
@@ -201,6 +242,8 @@ void ACXPawn::StopBrake(const FInputActionValue& Value)
 
 void ACXPawn::StartHandbrake(const FInputActionValue& Value)
 {
+	if (bCanControlVehicle == false) { return; }
+
 	// add the input
 	ChaosVehicleMovement->SetHandbrakeInput(true);
 
@@ -210,6 +253,8 @@ void ACXPawn::StartHandbrake(const FInputActionValue& Value)
 
 void ACXPawn::StopHandbrake(const FInputActionValue& Value)
 {
+	if (bCanControlVehicle == false) { return; }
+
 	// add the input
 	ChaosVehicleMovement->SetHandbrakeInput(false);
 
@@ -237,6 +282,8 @@ void ACXPawn::ToggleCamera(const FInputActionValue& Value)
 
 void ACXPawn::ResetVehicle(const FInputActionValue& Value)
 {
+	if (bCanControlVehicle == false) { return; }
+
 	// reset to a location slightly above our current one
 	FVector ResetLocation = GetActorLocation() + FVector(0.0f, 0.0f, 50.0f);
 
@@ -256,6 +303,8 @@ void ACXPawn::ResetVehicle(const FInputActionValue& Value)
 
 void ACXPawn::InputAttack(const FInputActionValue& Value)
 {
+	if (bCanControlVehicle == false) { return; }
+
 	CTSAttack();
 }
 

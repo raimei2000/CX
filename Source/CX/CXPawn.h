@@ -12,6 +12,7 @@ class UInputAction;
 class UChaosWheeledVehicleMovementComponent;
 struct FInputActionValue;
 class UParticleSystem;
+enum class EGameState : uint8;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateVehicle, Log, All);
 
@@ -82,6 +83,9 @@ protected:
 	/** Keeps track of which camera is active */
 	bool bFrontCameraActive = false;
 
+	/** true when only GameState is Playing*/
+	bool bCanControlVehicle = false;
+
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Effects)
 	UParticleSystem* HitParticle;
 
@@ -89,6 +93,8 @@ public:
 	ACXPawn();
 
 	// Begin Pawn interface
+
+	virtual void BeginPlay() override;
 
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 
@@ -104,6 +110,9 @@ public:
 
 	UFUNCTION(NetMulticast, Unreliable)
     void MulticastHitEffect(const FVector& TraceStart, const FVector& TraceEnd, bool bHitVehicle, const FVector& ImpactPoint, const FVector& ImpactNormal);
+
+	UFUNCTION()
+	void SetCanControlVehicle(EGameState CurrentGameState);
 
 protected:
 
