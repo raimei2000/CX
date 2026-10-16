@@ -28,6 +28,8 @@ class ACXPawn : public AWheeledVehiclePawn
 {
 	GENERATED_BODY()
 
+#pragma region Components
+
 	/** Spring Arm for the front camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* FrontSpringArm;
@@ -46,6 +48,10 @@ class ACXPawn : public AWheeledVehiclePawn
 
 	/** Cast pointer to the Chaos Vehicle movement component */
 	TObjectPtr<UChaosWheeledVehicleMovementComponent> ChaosVehicleMovement;
+
+#pragma endregion	
+
+#pragma region Input Property
 
 protected:
 
@@ -86,8 +92,9 @@ protected:
 	/** true when only GameState is Playing*/
 	bool bCanControlVehicle = false;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Effects)
-	UParticleSystem* HitParticle;
+#pragma endregion
+
+#pragma region Lifecycle
 
 public:
 	ACXPawn();
@@ -106,13 +113,32 @@ public:
 
 	// End Actor interface
 
+#pragma endregion
+
+#pragma region Functions
+
+public:
+
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+
+	UFUNCTION(Server, Reliable)
+	void CTSAttack();
+
+#pragma endregion
+
+#pragma region Cosmetic
+
+protected:
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Effects)
+	UParticleSystem* HitParticle;
 
 	UFUNCTION(NetMulticast, Unreliable)
     void MulticastHitEffect(const FVector& TraceStart, const FVector& TraceEnd, bool bHitVehicle, const FVector& ImpactPoint, const FVector& ImpactNormal);
 
-	UFUNCTION()
-	void SetCanControlVehicle(EGameState CurrentGameState);
+#pragma endregion
+
+#pragma region Input Handling
 
 protected:
 
@@ -149,8 +175,12 @@ protected:
 	UFUNCTION()
 	void InputAttack(const FInputActionValue& Value);
 
-	UFUNCTION(Server, Reliable)
-	void CTSAttack();
+	UFUNCTION()
+	void SetCanControlVehicle(EGameState CurrentGameState);
+
+#pragma endregion
+
+#pragma region Accessors
 
 public:
 	/** Returns the front spring arm subobject */
@@ -163,4 +193,6 @@ public:
 	FORCEINLINE UCameraComponent* GetBackCamera() const { return BackCamera; }
 	/** Returns the cast Chaos Vehicle Movement subobject */
 	FORCEINLINE const TObjectPtr<UChaosWheeledVehicleMovementComponent>& GetChaosVehicleMovement() const { return ChaosVehicleMovement; }
+
+#pragma endregion
 };
