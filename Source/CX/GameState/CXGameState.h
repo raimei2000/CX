@@ -12,6 +12,7 @@ class ACXPlayerState;
 UENUM(BlueprintType)
 enum class EGameState : uint8
 {
+    Default,
 	Waiting,
     Playing,
 	Finished
@@ -48,7 +49,7 @@ public:
 
 protected:
 	UPROPERTY(ReplicatedUsing = OnRep_UpdateGameState)
-    EGameState CurrentGameState = EGameState::Waiting;
+    EGameState CurrentGameState = EGameState::Default;
 
 	UPROPERTY(ReplicatedUsing = OnRep_UpdateTimer)
     int32 RemainingTime = 0;
