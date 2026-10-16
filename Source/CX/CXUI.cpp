@@ -4,6 +4,10 @@
 #include "CXUI.h"
 
 #include "UI/ChatUI.h"
+#include "GameState/CXGameState.h"
+
+#include "Kismet/GameplayStatics.h"
+#include "Components/TextBlock.h"
 
 void UCXUI::OnNewChatMessage(const FString& InSender, const FString& InMessage)
 {
@@ -23,4 +27,32 @@ void UCXUI::UpdateGear(int32 NewGear)
 {
 	// call the Blueprint handler
 	OnGearUpdate(NewGear);
+}
+
+void UCXUI::UpdateTime()
+{
+	if (ACXGameState* CXGS = Cast<ACXGameState>(UGameplayStatics::GetGameState(this)))
+	{
+		switch (CXGS->GetCurrentGameState())
+		{
+		case EGameState::Waiting:
+		{
+			UI_Timer->SetText(FText::FromString(FString::Printf(TEXT("Waiting... Game starts in %d seconds"), CXGS->GetRemainingTime())));
+
+			break;
+		}
+		case EGameState::Playing:
+		{
+			UI_Timer->SetText(FText::FromString(FString::Printf(TEXT("Time Remaining: %d seconds"), CXGS->GetRemainingTime())));
+
+			break;
+		}
+		case EGameState::Finished:
+		{
+			UI_Timer->SetText(FText::FromString(FString::Printf(TEXT("Game Finished!"))));
+
+			break;
+		}
+		}
+	}
 }

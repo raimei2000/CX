@@ -6,6 +6,8 @@
 #include "GameFramework/GameStateBase.h"
 #include "CXGameState.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTimerUpdatedSignature);
+
 class ACXPlayerState;
 
 UENUM(BlueprintType)
@@ -33,13 +35,21 @@ public:
 
     FORCEINLINE int32 GetRemainingTime() const { return RemainingTime; }
 
+    FORCEINLINE EGameState GetCurrentGameState() const { return CurrentGameState; }
+
     UPROPERTY(Replicated)
 	TArray<TObjectPtr<ACXPlayerState>> Winners;
 
+    FOnTimerUpdatedSignature OnTimerUpdated;
+
 protected:
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing = OnRep_UpdateTimerUI)
     EGameState CurrentGameState = EGameState::Waiting;
 
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing = OnRep_UpdateTimerUI)
     int32 RemainingTime = 0;
+
+private:
+    UFUNCTION()
+    void OnRep_UpdateTimerUI();
 };

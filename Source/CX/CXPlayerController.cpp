@@ -2,14 +2,19 @@
 
 
 #include "CXPlayerController.h"
+
 #include "CXPawn.h"
 #include "CXUI.h"
+#include "Subsystem/ChatSubsystem.h"
+#include "GameState/CXGameState.h"
+
 #include "EnhancedInputSubsystems.h"
 #include "ChaosWheeledVehicleMovementComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "GameFramework/PlayerState.h"
 #include "EngineUtils.h"
-#include "Subsystem/ChatSubsystem.h"
+#include "Kismet/GameplayStatics.h"
+
 
 void ACXPlayerController::CTSChatMessage_Implementation(const FString& Message)
 {
@@ -34,6 +39,11 @@ void ACXPlayerController::CTSChatMessage_Implementation(const FString& Message)
 void ACXPlayerController::STCChatMessage_Implementation(const FString& Sender, const FString& Message)
 {
 	VehicleUI->OnNewChatMessage(Sender, Message);
+}
+
+void ACXPlayerController::HandleTimerUpdated()
+{
+	VehicleUI->UpdateTime();
 }
 
 void ACXPlayerController::STCChatLog_Implementation(const TArray<FChatData>& ChatLog)
@@ -69,6 +79,11 @@ void ACXPlayerController::BeginPlay()
 
 		ChatSubsystem->ClearChatLog();
 	}
+
+	if (ACXGameState* CXGS = Cast<ACXGameState>(UGameplayStatics::GetGameState(this)))
+	{
+		CXGS->OnTimerUpdated.AddUniqueDynamic(this, &ACXPlayerController::HandleTimerUpdated);
+    }
 }
 
 void ACXPlayerController::SetupInputComponent()

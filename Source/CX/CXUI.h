@@ -7,6 +7,7 @@
 #include "CXUI.generated.h"
 
 class UChatUI;
+class UTextBlock;
 
 /**
  *  Simple Vehicle HUD class
@@ -26,6 +27,17 @@ public:
 protected:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UChatUI> UI_Chat;
+
+#pragma endregion
+
+#pragma region Timer
+
+public:
+	void UpdateTime();
+
+protected:
+    UPROPERTY(meta = (BindWidget))
+    TObjectPtr<UTextBlock> UI_Timer;
 
 #pragma endregion
 

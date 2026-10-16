@@ -35,6 +35,10 @@ protected:
 	void STCChatMessage(const FString& Sender, const FString& Message);
 
 protected:
+	UFUNCTION()
+	void HandleTimerUpdated();
+
+protected:
 
 	/** Input Mapping Context to be used for player input */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
