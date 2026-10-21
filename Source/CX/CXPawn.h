@@ -141,12 +141,16 @@ public:
 	UFUNCTION(Server, Reliable)
 	void CTSSpawnMine();
 
+	void UpdateMaxSpeed(float InBonusMaxSpeed);
+
 private:
 
 	FTimerHandle ThrottleRecoveryTimerHandle;
 
 	UPROPERTY(EditDefaultsOnly, Category = Combat, meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<ACXMineItem> MineClass;
+
+	float InitMaxEngineTorque = 300.f;
 
 #pragma endregion
 

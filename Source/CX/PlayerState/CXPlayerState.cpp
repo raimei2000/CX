@@ -4,6 +4,8 @@
 #include "CXPlayerState.h"
 
 #include "Net/UnrealNetwork.h"
+#include "CXPawn.h"
+#include "ChaosWheeledVehicleMovementComponent.h"
 
 static int32 GMyTestCoin = 0;
 
@@ -77,6 +79,12 @@ void ACXPlayerState::AddBonusMaxSpeed(float Amount)
     if (HasAuthority() == false || Amount <= 0.f) { return; }
 
     BonusMaxSpeed += Amount;
+    BonusMaxSpeed = FMath::Min(20.f, BonusMaxSpeed); // max cap 20
+
+    if (ACXPawn* Vehicle = Cast<ACXPawn>(GetPawn()))
+    {
+        Vehicle->UpdateMaxSpeed(BonusMaxSpeed);
+    }
 }
 
 void ACXPlayerState::ReduceBonusMaxSpeed(float Amount)
@@ -84,7 +92,12 @@ void ACXPlayerState::ReduceBonusMaxSpeed(float Amount)
     if (HasAuthority() == false || Amount <= 0.f) { return; }
 
     BonusMaxSpeed -= Amount;
-    BonusMaxSpeed = FMath::Max(-20, BonusMaxSpeed); // min cap -20
+    BonusMaxSpeed = FMath::Max(-20.f, BonusMaxSpeed); // min cap -20
+
+    if (ACXPawn* Vehicle = Cast<ACXPawn>(GetPawn()))
+    {
+        Vehicle->UpdateMaxSpeed(BonusMaxSpeed);
+    }
 
     if (BonusMaxSpeed < 0.f && GetWorldTimerManager().IsTimerActive(RecoverBonusMaxSpeedTimer) == false)
     {
@@ -106,6 +119,11 @@ void ACXPlayerState::RecoverBonusMaxSpeed()
     else
     {
         BonusMaxSpeed = FMath::Min(BonusMaxSpeed + 0.12f, 0.f);
+
+        if (ACXPawn* Vehicle = Cast<ACXPawn>(GetPawn()))
+        {
+            Vehicle->UpdateMaxSpeed(BonusMaxSpeed);
+        }
 
         if (BonusMaxSpeed >= 0.f)
         {

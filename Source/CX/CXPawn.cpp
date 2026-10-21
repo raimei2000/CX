@@ -56,7 +56,10 @@ ACXPawn::ACXPawn()
 
 	// get the Chaos Wheeled movement component
 	ChaosVehicleMovement = CastChecked<UChaosWheeledVehicleMovementComponent>(GetVehicleMovement());
-
+	//ChaosVehicleMovement->Thrusters.Emplace();
+	//ChaosVehicleMovement->Thrusters[0].MaxThrustForce = 500.f;
+	//ChaosVehicleMovement->Thrusters[0].GetPhysicsThrusterConfig(*ChaosVehicleMovement);
+	
 }
 
 void ACXPawn::BeginPlay()
@@ -67,6 +70,11 @@ void ACXPawn::BeginPlay()
 	{
         CXGS->OnGameStateUpdate.AddDynamic(this, &ACXPawn::SetCanControlVehicle);
 	}
+
+	//UE_LOG(LogTemplateVehicle, Warning, TEXT("# of thrusters: %d"), ChaosVehicleMovement->Thrusters.Num());
+	//UE_LOG(LogTemplateVehicle, Warning, TEXT("# of thrusters: %.2f"), ChaosVehicleMovement->Thrusters[0].MaxThrustForce);
+
+	ChaosVehicleMovement->SetMaxEngineTorque(InitMaxEngineTorque);
 }
 
 void ACXPawn::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -201,6 +209,12 @@ void ACXPawn::STCHitByMine_Implementation()
 void ACXPawn::RecoverThrottle()
 {
 	bThrottleBroken = false;
+}
+
+void ACXPawn::UpdateMaxSpeed(float InBonusMaxSpeed)
+{
+	InBonusMaxSpeed = FMath::Clamp(InBonusMaxSpeed * 30, -200.f, 600.f);
+	ChaosVehicleMovement->SetMaxEngineTorque(InitMaxEngineTorque + InBonusMaxSpeed);
 }
 
 void ACXPawn::MulticastHitEffect_Implementation(const FVector& TraceStart, const FVector& TraceEnd, bool bHitVehicle, const FVector& ImpactPoint, const FVector& ImpactNormal)
